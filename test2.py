@@ -288,56 +288,58 @@ def create_prediction(l_rate, levels, training_data, train_cols, model, next_ite
 
 next_iters = 5
 
-l_rate = 0.03
-levels = 20
-training_data = 400
-train_cols = 6
-model_type = 'combo'
+if st.button('Click to run program'):
 
-st.write('learning_rate: ' + str(l_rate) + ', forest_levels: ' + str(levels) + ', training_amount: ' + str(training_data) + ', step_columns: ' + str(train_cols) + ', model_type: ' + str(model_type))
-create_prediction(l_rate, levels, training_data, train_cols, model_type, next_iters)
+    l_rate = 0.03
+    levels = 20
+    training_data = 400
+    train_cols = 6
+    model_type = 'combo'
 
-l_rate = 0.5
-levels = 10
-training_data = 2500
-train_cols = 4
-model_type = 'combo'
+    st.write('learning_rate: ' + str(l_rate) + ', forest_levels: ' + str(levels) + ', training_amount: ' + str(training_data) + ', step_columns: ' + str(train_cols) + ', model_type: ' + str(model_type))
+    create_prediction(l_rate, levels, training_data, train_cols, model_type, next_iters)
 
-st.write('learning_rate: ' + str(l_rate) + ', forest_levels: ' + str(levels) + ', training_amount: ' + str(training_data) + ', step_columns: ' + str(train_cols) + ', model_type: ' + str(model_type))
-create_prediction(l_rate, levels, training_data, train_cols, model_type, next_iters)
+    l_rate = 0.5
+    levels = 10
+    training_data = 2500
+    train_cols = 4
+    model_type = 'combo'
 
-l_rate = 0.5
-levels = 10
-training_data = 800
-train_cols = 8
-model_type = 'combo'
+    st.write('learning_rate: ' + str(l_rate) + ', forest_levels: ' + str(levels) + ', training_amount: ' + str(training_data) + ', step_columns: ' + str(train_cols) + ', model_type: ' + str(model_type))
+    create_prediction(l_rate, levels, training_data, train_cols, model_type, next_iters)
 
-st.write('learning_rate: ' + str(l_rate) + ', forest_levels: ' + str(levels) + ', training_amount: ' + str(training_data) + ', step_columns: ' + str(train_cols) + ', model_type: ' + str(model_type))
-create_prediction(l_rate, levels, training_data, train_cols, model_type, next_iters)
+    l_rate = 0.5
+    levels = 10
+    training_data = 800
+    train_cols = 8
+    model_type = 'combo'
 
-l_rate = 0.7
-levels = 10
-training_data = 200
-train_cols = 12
-model_type = 'combo'
+    st.write('learning_rate: ' + str(l_rate) + ', forest_levels: ' + str(levels) + ', training_amount: ' + str(training_data) + ', step_columns: ' + str(train_cols) + ', model_type: ' + str(model_type))
+    create_prediction(l_rate, levels, training_data, train_cols, model_type, next_iters)
 
-st.write('learning_rate: ' + str(l_rate) + ', forest_levels: ' + str(levels) + ', training_amount: ' + str(training_data) + ', step_columns: ' + str(train_cols) + ', model_type: ' + str(model_type))
-create_prediction(l_rate, levels, training_data, train_cols, model_type, next_iters)
+    l_rate = 0.7
+    levels = 10
+    training_data = 200
+    train_cols = 12
+    model_type = 'combo'
 
-l_rate = 0.7
-levels = 10
-training_data = 200
-train_cols = 12
-model_type = 'forest'
+    st.write('learning_rate: ' + str(l_rate) + ', forest_levels: ' + str(levels) + ', training_amount: ' + str(training_data) + ', step_columns: ' + str(train_cols) + ', model_type: ' + str(model_type))
+    create_prediction(l_rate, levels, training_data, train_cols, model_type, next_iters)
 
-st.write('learning_rate: ' + str(l_rate) + ', forest_levels: ' + str(levels) + ', training_amount: ' + str(training_data) + ', step_columns: ' + str(train_cols) + ', model_type: ' + str(model_type))
-create_prediction(l_rate, levels, training_data, train_cols, model_type, next_iters)
+    l_rate = 0.7
+    levels = 10
+    training_data = 200
+    train_cols = 12
+    model_type = 'forest'
 
-l_rate = 0.7
-levels = 10
-training_data = 400
-train_cols = 4
-model_type = 'regression'
+    st.write('learning_rate: ' + str(l_rate) + ', forest_levels: ' + str(levels) + ', training_amount: ' + str(training_data) + ', step_columns: ' + str(train_cols) + ', model_type: ' + str(model_type))
+    create_prediction(l_rate, levels, training_data, train_cols, model_type, next_iters)
 
-st.write('learning_rate: ' + str(l_rate) + ', forest_levels: ' + str(levels) + ', training_amount: ' + str(training_data) + ', step_columns: ' + str(train_cols) + ', model_type: ' + str(model_type))
-create_prediction(l_rate, levels, training_data, train_cols, model_type, next_iters)
+    l_rate = 0.7
+    levels = 10
+    training_data = 400
+    train_cols = 4
+    model_type = 'regression'
+
+    st.write('learning_rate: ' + str(l_rate) + ', forest_levels: ' + str(levels) + ', training_amount: ' + str(training_data) + ', step_columns: ' + str(train_cols) + ', model_type: ' + str(model_type))
+    create_prediction(l_rate, levels, training_data, train_cols, model_type, next_iters)
