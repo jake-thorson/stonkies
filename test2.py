@@ -286,7 +286,7 @@ def create_prediction(l_rate, levels, training_data, train_cols, model, next_ite
     st.altair_chart(chart, use_container_width=True)
 
 
-next_iters = 7
+next_iters = 5
 
 l_rate = 0.03
 levels = 20
