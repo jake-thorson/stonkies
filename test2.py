@@ -294,6 +294,7 @@ training_data = 400
 train_cols = 6
 model_type = 'combo'
 
+st.write('learning_rate: ' + str(l_rate) + ', forest_levels: ' + str(levels) + ', training_amount: ' + str(training_data) + ', step_columns: ' + str(train_cols) + ', model_type: ' + str(model_type))
 create_prediction(l_rate, levels, training_data, train_cols, model_type, next_iters)
 
 l_rate = 0.5
@@ -302,6 +303,7 @@ training_data = 2500
 train_cols = 4
 model_type = 'combo'
 
+st.write('learning_rate: ' + str(l_rate) + ', forest_levels: ' + str(levels) + ', training_amount: ' + str(training_data) + ', step_columns: ' + str(train_cols) + ', model_type: ' + str(model_type))
 create_prediction(l_rate, levels, training_data, train_cols, model_type, next_iters)
 
 l_rate = 0.5
@@ -310,6 +312,7 @@ training_data = 800
 train_cols = 8
 model_type = 'combo'
 
+st.write('learning_rate: ' + str(l_rate) + ', forest_levels: ' + str(levels) + ', training_amount: ' + str(training_data) + ', step_columns: ' + str(train_cols) + ', model_type: ' + str(model_type))
 create_prediction(l_rate, levels, training_data, train_cols, model_type, next_iters)
 
 l_rate = 0.7
@@ -318,6 +321,7 @@ training_data = 200
 train_cols = 12
 model_type = 'combo'
 
+st.write('learning_rate: ' + str(l_rate) + ', forest_levels: ' + str(levels) + ', training_amount: ' + str(training_data) + ', step_columns: ' + str(train_cols) + ', model_type: ' + str(model_type))
 create_prediction(l_rate, levels, training_data, train_cols, model_type, next_iters)
 
 l_rate = 0.7
@@ -326,6 +330,7 @@ training_data = 200
 train_cols = 12
 model_type = 'forest'
 
+st.write('learning_rate: ' + str(l_rate) + ', forest_levels: ' + str(levels) + ', training_amount: ' + str(training_data) + ', step_columns: ' + str(train_cols) + ', model_type: ' + str(model_type))
 create_prediction(l_rate, levels, training_data, train_cols, model_type, next_iters)
 
 l_rate = 0.7
@@ -334,4 +339,5 @@ training_data = 400
 train_cols = 4
 model_type = 'regression'
 
+st.write('learning_rate: ' + str(l_rate) + ', forest_levels: ' + str(levels) + ', training_amount: ' + str(training_data) + ', step_columns: ' + str(train_cols) + ', model_type: ' + str(model_type))
 create_prediction(l_rate, levels, training_data, train_cols, model_type, next_iters)
