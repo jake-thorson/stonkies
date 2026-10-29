@@ -15,6 +15,9 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import accuracy_score
 from sklearn.ensemble import RandomForestRegressor
 
+
+
+
 st.set_page_config(page_title='stonks', layout='wide')
 
 def get_ticky(ticky):
@@ -70,6 +73,9 @@ def scrub_it(ticky, train_cols):
         if 'Volume' in col or 'Low' in col or 'High' in col or 'Close' in col:
             df = df.drop(col, axis='columns')
 
+    return df
+
+def add_local_min_max(df, ticky):
     df['local_min_' + ticky] = np.where(
         (df['Open ' + ticky] < df['Open ' + ticky].shift(1)) &
         (df['Open ' + ticky] < df['Open ' + ticky].shift(-1)),
@@ -92,16 +98,31 @@ def scrub_it(ticky, train_cols):
     df = df.iloc[train_cols:]
     df.index = np.arange(0, len(df))
 
-
     return df
 
+def fill_nones(df1, df2):
+    for col in df1:
+        if 'Open' in col:
+            temp = df1.drop(col, axis='columns')
+    df2 = df2.merge(temp, on = ['time', 'month', 'day', 'hour', 'minute'], how = 'outer')
+    for col in df2:
+        if 'Open' in col:
+            df2[col] = df2[col].ffill()
+    return df2
 
-def create_prediction(l_rate, levels, training_data, train_cols, next_iters):
+def create_prediction(l_rate, levels, training_data, train_cols, model, next_iters):
 
     btc = scrub_it('BTC-USD', train_cols)
     xrp = scrub_it('XRP-USD', train_cols)
 
+    xrp = fill_nones(btc, xrp)
+    btc  = fill_nones(xrp, btc)
+
+    btc = add_local_min_max(btc, 'BTC-USD')
+    xrp = add_local_min_max(xrp, 'XRP-USD')
+
     stonks = xrp.merge(btc, on = ['time', 'month', 'day', 'hour', 'minute'], how = 'outer')
+
     stonks = stonks.iloc[len(stonks)-training_data:]
     stonks.index = np.arange(0, len(stonks))
 
@@ -131,7 +152,7 @@ def create_prediction(l_rate, levels, training_data, train_cols, next_iters):
         return new_line
 
 
-    def stonk_predict(stonks, l_rate, levels, train_cols, next_iters):
+    def stonk_predict(stonks, l_rate, levels, train_cols, model_type, next_iters):
         for i in range(0, next_iters):
 
             new_line = create_new_line(stonks, train_cols)
@@ -161,26 +182,27 @@ def create_prediction(l_rate, levels, training_data, train_cols, next_iters):
                         stonks[col] = stonks[col].astype(float)
                         features.append(col)
 
-                xtrain = train[features]
-                ytrain = train[each_target]
-                xtest = test[features]
-                ytest = test[each_target]
+                if model_type == 'forest' or model_type == 'combo':
+                    xtrain = train[features]
+                    ytrain = train[each_target]
+                    xtest = test[features]
+                    ytest = test[each_target]
 
-                X = stonks[features]
-                y = stonks[each_target]
+                    X = stonks[features]
+                    y = stonks[each_target]
 
-                scaler = StandardScaler()
+                    scaler = StandardScaler()
 
-                X_train_scaled = scaler.fit_transform(xtrain)
-                X_test_scaled = scaler.transform(xtest)
+                    X_train_scaled = scaler.fit_transform(xtrain)
+                    X_test_scaled = scaler.transform(xtest)
 
-                # Train Decision Tree Classifier
-                model = RandomForestRegressor(max_depth=levels, random_state=70)
-                model.fit(X_train_scaled, ytrain)
+                    # Train Decision Tree Classifier
+                    model = RandomForestRegressor(max_depth=levels, random_state=70)
+                    model.fit(X_train_scaled, ytrain)
 
-                # Predict and evaluate
-                y_pred = model.predict(X_test_scaled)
-                result1 = y_pred.tolist()[0]
+                    # Predict and evaluate
+                    y_pred = model.predict(X_test_scaled)
+                    result1 = y_pred.tolist()[0]
 
                 features = []
                 for col in stonks:
@@ -192,13 +214,14 @@ def create_prediction(l_rate, levels, training_data, train_cols, next_iters):
                 xtest = test[features]
                 ytest = test[each_target]
 
+                if model_type == 'regression' or model_type == 'combo':
 
-                reg = xgb.XGBRegressor(n_estimators = 500, early_stopping_rounds = 15,
-                                    learning_rate = l_rate, nthread = 1, verbosity = 0)
-                reg.fit(xtrain, ytrain, eval_set = [(xtrain, ytrain), (xtest, ytest)], verbose = True)
+                    reg = xgb.XGBRegressor(n_estimators = 500, early_stopping_rounds = 15,
+                                        learning_rate = l_rate, nthread = 1, verbosity = 0)
+                    reg.fit(xtrain, ytrain, eval_set = [(xtrain, ytrain), (xtest, ytest)], verbose = True)
 
-                result = reg.predict(xtest)
-                result = result.tolist()[0]
+                    result = reg.predict(xtest)
+                    result = result.tolist()[0]
 
                 #acutal_result = actuals.loc[actuals['time'].astype(str) == str(stonks.at[len(stonks)-1, 'time']).replace('.0','')][each_target].tolist()[0]
                 #all_results = pd.concat([all_results, pd.DataFrame({'random_forrest': [result1],
@@ -214,9 +237,14 @@ def create_prediction(l_rate, levels, training_data, train_cols, next_iters):
                 #    st.write(result)
                 #    st.write(result1)
 
-                result = (result + result1) / 2
+                if model_type == 'combo':
+                    result = (result + result1) / 2
+                if model_type == 'forest':
+                    result = result1
+                if model_type == 'regression':
+                    result = result
 
-                stonks.at[len(stonks)-1, each_target] = result
+            stonks.at[len(stonks)-1, each_target] = result
 
             for ticky in ['XRP-USD', 'BTC-USD']:
                 stonks['local_min_' + ticky] = np.where(
@@ -235,62 +263,75 @@ def create_prediction(l_rate, levels, training_data, train_cols, next_iters):
                 stonks['local_max_' + ticky] = stonks['local_max_' + ticky].ffill()
         return stonks
 
-    new_stonkie = stonk_predict(stonks, l_rate, levels, train_cols, next_iters)
+    new_stonkie = stonk_predict(stonks, l_rate, levels, train_cols, model_type, next_iters)
 
     new_stonkie=new_stonkie.iloc[len(new_stonkie)-15:]
 
     pred = pd.DataFrame({'xrp_pred': new_stonkie['Open XRP-USD'],
                         'btc_pred': new_stonkie['Open BTC-USD'],
                         'time': new_stonkie['time'].astype(str).str.replace('.0','')})
-    pred = pred.iloc[len(pred)-next_iters-5:]
+    pred = pred.iloc[len(pred)-next_iters-2:]
 
     y_min = pred['xrp_pred'].min()
     y_max = pred['xrp_pred'].max()
 
     chart = alt.Chart(pred).transform_fold(
         ['xrp_pred'],
-        as_=['Variable', 'Value']
-    ).mark_line().encode(
+        as_=['Variable', 'Value']).mark_line().encode(
         x='time',
-        y=alt.Y(
-            'Value:Q',
-            scale=alt.Scale(domain=[y_min, y_max], zero=False)
-        ),
-        color=alt.Color('Variable:N')
-    )
+        y=alt.Y('Value:Q',
+                scale=alt.Scale(domain=[y_min, y_max], zero=False)),
+        color=alt.Color('Variable:N'))
 
     st.altair_chart(chart, use_container_width=True)
 
 
+next_iters = 7
 
-if st.button('run it'):
+l_rate = 0.03
+levels = 20
+training_data = 400
+train_cols = 6
+model_type = 'combo'
 
-    l_rate = 0.3
-    levels = 10
-    training_data = 4000
-    train_cols = 11
-    next_iters = 8
+create_prediction(l_rate, levels, training_data, train_cols, model_type, next_iters)
 
-    st.write('best prediction model')
+l_rate = 0.5
+levels = 10
+training_data = 2500
+train_cols = 4
+model_type = 'combo'
 
-    create_prediction(l_rate, levels, training_data, train_cols, next_iters)
+create_prediction(l_rate, levels, training_data, train_cols, model_type, next_iters)
 
-    st.write('high volatility')
+l_rate = 0.5
+levels = 10
+training_data = 800
+train_cols = 8
+model_type = 'combo'
 
-    l_rate = 0.3
-    levels = 15
-    training_data = 400
-    train_cols = 4
-    next_iters = 8
+create_prediction(l_rate, levels, training_data, train_cols, model_type, next_iters)
 
-    create_prediction(l_rate, levels, training_data, train_cols, next_iters)
+l_rate = 0.7
+levels = 10
+training_data = 200
+train_cols = 12
+model_type = 'combo'
 
-    st.write('medium volatility')
+create_prediction(l_rate, levels, training_data, train_cols, model_type, next_iters)
 
-    l_rate = 0.5
-    levels = 10
-    training_data = 1000
-    train_cols = 6
-    next_iters = 8
+l_rate = 0.7
+levels = 10
+training_data = 200
+train_cols = 12
+model_type = 'forest'
 
-    create_prediction(l_rate, levels, training_data, train_cols, next_iters)
+create_prediction(l_rate, levels, training_data, train_cols, model_type, next_iters)
+
+l_rate = 0.7
+levels = 10
+training_data = 400
+train_cols = 4
+model_type = 'regression'
+
+create_prediction(l_rate, levels, training_data, train_cols, model_type, next_iters)
