@@ -244,7 +244,7 @@ def create_prediction(l_rate, levels, training_data, train_cols, model, next_ite
                 if model_type == 'regression':
                     result = result
 
-            stonks.at[len(stonks)-1, each_target] = result
+                stonks.at[len(stonks)-1, each_target] = result
 
             for ticky in ['XRP-USD', 'BTC-USD']:
                 stonks['local_min_' + ticky] = np.where(
